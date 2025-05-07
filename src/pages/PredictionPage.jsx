@@ -6,15 +6,19 @@ function PredictionPage(){
     const [textInput, setTextInput] = useState("");
     const [predictionResult, setPredictionResult] = useState(null);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const getPrediction = async (text) => {
         setError("");
-
+        setLoading(true);
+        setPredictionResult(null);
         try {
-            const response = await predictStoryLabel(textInput);
+            const response = await predictStoryLabel(text);
             setPredictionResult(response.data);
         } catch (err) {
             setError("Failed to get prediction. Please try again.");
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -66,6 +70,8 @@ function PredictionPage(){
                     <h2>Prediction Result</h2>
                     <p><strong>Predicted Label:</strong> {predictionResult.label_name}</p>
                     <p><strong>Confidence:</strong> {(predictionResult.certainty * 100).toFixed(2)}%</p>
+                    <p><strong>Content suitability:</strong> {predictionResult.content_analysis}</p>
+                    <p><strong>Structure suitability:</strong> {predictionResult.structure_analysis}</p>
                     {predictionResult.certainty < 0.5 && (
                         <p style={{ color: "orange" }}>
                             The model is not very confident about this prediction. Please verify the result.
